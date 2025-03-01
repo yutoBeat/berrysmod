@@ -1396,7 +1396,7 @@ SMODS.Joker {
 	config = { extra = { chips = 5, chips_add = 145 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.chips, card.ability.extra.chips_add  } }
+		return { vars = { card.ability.extra.chips, card.ability.extra.chips_add} }
 	end,
 	
 	rarity = 2,
@@ -1405,7 +1405,7 @@ SMODS.Joker {
 	
 	pos = { x = 0, y = 7 },
 	
-	cost = 5,7
+	cost = 5,7,
     slug = "j_futa",
 	
 	calculate = function(self, card, context)
