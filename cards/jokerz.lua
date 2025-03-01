@@ -1383,7 +1383,7 @@ SMODS.Joker {
 
 SMODS.Joker {
 	
-	key = 'j_futa_splat_orgy',
+	key = 'j_futa_splat_orgy  ',
 	
 	loc_txt = {
 		name = 'A Grandfest',
