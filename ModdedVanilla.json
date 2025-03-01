@@ -1,0 +1,13 @@
+{
+    "id": "BERRY",
+    "name": "Berrys little mod",
+    "author": ["berry"],
+    "description": "A small collection of jokers",
+    "prefix": "bery",
+    "main_file": "cards/jokerz.lua",
+    "badge_colour": "9c70c5",
+    "dependencies": [
+        "Steamodded (>=1.0.0~ALPHA-1225a)"
+    ],
+    "version": "1.0.0"
+}
