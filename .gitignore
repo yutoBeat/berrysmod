@@ -40,5 +40,5 @@ luac.out
 *.hex
 
 # folders 
-.vscode
+/.vscode
 
