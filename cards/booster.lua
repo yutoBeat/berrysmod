@@ -5,7 +5,15 @@ SMODS.Atlas {
     py = 95
 }
 
-local joker_keys = {
+SMODS.Sound{
+    key = "music_sniper",
+    path = "music_sniper.ogg",
+    select_music_track = function() 
+        return G.STAGE == G.STATES.SMODS_BOOSTER_OPENED and G.STATE and SMODS.OPENED_BOOSTER.label:find("booster_Futa")
+    end
+}
+
+local jokerkey = {
     "j_feet_mirko_ice",
     "j_feet_pearl",
     "Marina_Meat",
@@ -40,34 +48,34 @@ local joker_keys = {
     "j_foot_collection"
 }
 
-
 local function getrand_futajoker()
     local futajokers = {}
-    for _, jokerkey in ipairs(jokers) do
-        if string.match(jokerkey, "^j_futa") or string.match(jokerkey, "^j_fuet") then
-            table.insert(futajokers, jokerkey)
+    for _, key in ipairs(jokerkey) do  -- Use correct variable name `jokerkey`
+        if string.match(key, "^j_futa") or string.match(key, "^j_fuet") then
+            table.insert(futajokers, key)
         end
     end
     if #futajokers > 0 then
-        local randomIndex = math.random(1, #futajokers)  -- Fixed inconsistent capitalization
-        local jokerkey = futajokers[randomIndex]
-        return "j_bery_" .. jokerkey  
+        local randomIndex = math.random(1, #futajokers)
+        local selectedKey = futajokers[randomIndex]
+        return "j_bery_" .. selectedKey
     end
 end
 
 local function getrand_footjoker()
-local footjoker = {}
-    for _, jokerkey in ipairs(jokers) do
-        if string.match(jokerkey, "^j_feet") or string.match(jokerkey, "^j_fuet") then
-            table.insert(footjoker, jokerkey)
+    local footjokers = {}
+    for _, key in ipairs(jokerkey) do  -- Use correct variable name `jokerkey`
+        if string.match(key, "^j_feet") or string.match(key, "^j_fuet") then
+            table.insert(footjokers, key)
         end
     end
-    if #footjoker > 0 then
-        local randomIndex = math.random(1, #footjoker)  -- Fixed inconsistent capitalization
-        local jokerkey = footjoker[randomIndex]
-        return "j_bery_" .. jokerkey  
+    if #footjokers > 0 then
+        local randomIndex = math.random(1, #footjokers)
+        local selectedKey = footjokers[randomIndex]
+        return "j_bery_" .. selectedKey
     end
 end
+
 
 SMODS.Booster {
     key = 'booster_Futa', 

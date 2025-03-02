@@ -856,41 +856,50 @@ SMODS.Joker {
 	key = 'j_futa_splatdance',
 	
 	loc_txt = {
-		name = 'A night out',
-		text = {
-			
-			"{C:mult}+#1# {} Mult"
-		}
-	},
+        name = 'Night Out',
+        text = {
+            "When your hand contains both Spades and Hearts,",
+            "gain +40 Chips and +2 Mult."
+        }
+    },
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { chip_bonus = 40, mult_bonus = 2} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.mult_bonus, card.ability.extra.chip_bonus  } }
 	end,
 	
-	rarity = 1,
+	rarity = 2,
 	
 	atlas = 'feetandfuta',
 	
 	pos = { x = 3, y = 4 },
 	
-	cost = 2,
+	cost = 3,
 
     slug = "j_futa",
 	
 	calculate = function(self, card, context)
-		
-		if context.joker_main then
-			
-			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
-			}
-		end
-	end
+        if context.individual and context.cardarea == G.play then
+            local has_spades = false
+            local has_hearts = false
+            for _, other_card in ipairs(G.play.cards) do
+                if other_card:is_suit('Spades') then
+                    has_spades = true
+                end
+                if other_card:is_suit('Hearts') then
+                    has_hearts = true
+                end
+            end
+            if has_spades and has_hearts then
+                return {
+                    chips = card.ability.extra.chip_bonus,
+                    mult = card.ability.extra.mult_bonus,
+                    message = "Duet! Spades and Hearts present, bonus applied."
+                }
+            end
+        end
+    end
 }
 
 SMODS.Joker {
