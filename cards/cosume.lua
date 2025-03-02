@@ -83,7 +83,7 @@ local jokers = {
     'j_feet_Peko',
     'j_feet_Twins',
     'j_feet_selen',
-    'j_feet_marie',
+    'j_futa_mirko',
     'j_feet_pantyhosefeet',
     'j_feet_dp',
     'j_feet_Fromuppper',
@@ -154,9 +154,10 @@ SMODS.Consumable {
     end,
 
     use = function(card, area, copier)
+        local key_joker = getrand_footjoker()
         SMODS.add_card{
             set = 'Joker',
-            key = getrand_footjoker()
+            key = key_joker
         }
     end
 }

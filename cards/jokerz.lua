@@ -42,7 +42,7 @@ end
 --     "j_feet_Peko",
 --     "j_feet_Twins",
 --     "j_feet_selen",
---     "j_feet_marie",
+--     "j_futa_mirko",
 --     "j_feet_pantyhosefeet",
 --     "j_feet_dp",
 --     "j_feet_Fromuppper",
@@ -527,14 +527,16 @@ SMODS.Joker {
 		name = 'Working legs',
 		text = {
 			
-			"{C:mult}+#1# {} Mult"
+			"{C:red}+#1#{} discards",
+			"each round,",
+			"{C:red}#2#{} hand size"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = {  discard_size = 2, hand_size = -1 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.discard_size, card.ability.extra.hand_size } }
 	end,
 	
 	rarity = 1,
@@ -548,18 +550,14 @@ SMODS.Joker {
 	slug = "j_feet",
 
     soul_pos = { x = 0, y = 2 },
-	
-	calculate = function(self, card, context)
-		
-		if context.joker_main then
 			
-			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
-			}
-		end
+	add_to_deck = function(self, card, from_debuff)
+		G.GAME.round_resets.discards = G.GAME.round_resets.discards + card.ability.extra.discard_size
+		G.hand:change_size(card.ability.extra.hand_size)
+	end,
+	remove_from_deck = function(self, card, from_debuff)
+		G.GAME.round_resets.discards = G.GAME.round_resets.discards - card.ability.extra.discard_size
+		G.hand:change_size(-card.ability.extra.hand_size)
 	end
 }
 
@@ -611,14 +609,14 @@ SMODS.Joker {
 		name = 'Money shot',
 		text = {
 			
-			"{C:mult}+#1# {} Mult"
+			"If Hand Contains a {C:attention}Pair{} {C:money}+$6{} Dollars"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { money = 6 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.money } }
 	end,
 	
 	rarity = 1,
@@ -629,16 +627,12 @@ SMODS.Joker {
 	
 	cost = 2,
     slug = "j_feet",
-	
 	calculate = function(self, card, context)
-		
-		if context.joker_main then
-			
+		if context.before and next(context.poker_hands['Pair']) and not context.blueprint then
+			G.GAME.dollars = G.GAME.dollars + 6
 			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
+				message = "+6",
+				colour = G.C.yellow
 			}
 		end
 	end
@@ -736,14 +730,14 @@ SMODS.Joker {
 		name = 'Futa love',
 		text = {
 			
-			"If played hand contains 2 or more queens gain +30 Chips"
+			"If played hand contains 2 or more Queens, {}#1# Chips"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { XChips = 2, queen_count = 0 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.Xchips, card.ability.extra.queen_count} }
 	end,
 	
 	rarity = 1,
@@ -755,17 +749,21 @@ SMODS.Joker {
 	cost = 2,
     slug = "j_futa",
 	
+
 	calculate = function(self, card, context)
-		
-		if context.joker_main then
-			
+		if context.cardarea == G.play and context.individual and context.other_card:get_id() == 12 then
+			card.ability.extra.queen_count = card.ability.extra.queen_count + 1 
+			print(card.ability.extra.queen_count)
+		end
+		if context.joker_main and card.ability.extra.queen_count >= 2 then
+			print("Should work")
 			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
+				xchips = card.ability.extra.Xchips
 			}
 		end
+		if context.end_of_round then
+			card.ability.extra.queen_count = 0
+		end	
 	end
 }
 
@@ -858,8 +856,8 @@ SMODS.Joker {
 	loc_txt = {
         name = 'Night Out',
         text = {
-            "When your hand contains both Spades and Hearts,",
-            "gain +40 Chips and +2 Mult."
+            "When your hand contains both {C:black}Spades{} and {C:red}Hearts{},",
+            "gain {C:chips}+40{} Chips and {C:mult}+2{} Mult."
         }
     },
 	
@@ -894,8 +892,7 @@ SMODS.Joker {
             if has_spades and has_hearts then
                 return {
                     chips = card.ability.extra.chip_bonus,
-                    mult = card.ability.extra.mult_bonus,
-                    message = "Duet! Spades and Hearts present, bonus applied."
+                    mult = card.ability.extra.mult_bonus
                 }
             end
         end
@@ -1083,7 +1080,7 @@ SMODS.Joker {
 
 SMODS.Joker {
 	
-	key = 'j_feet_marie',
+	key = 'j_futa_mirko',
 	
 	loc_txt = {
 		name = 'Surporting stirups',
@@ -1107,7 +1104,7 @@ SMODS.Joker {
 	
 	cost = 2,
 
-    slug = "j_feet",
+    slug = "j_futa",
 	
 	calculate = function(self, card, context)
 		
