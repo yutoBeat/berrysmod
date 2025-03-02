@@ -5,13 +5,13 @@ SMODS.Atlas {
     py = 95
 }
 
-SMODS.Sound{
-    key = "music_sniper",
-    path = "music_sniper.ogg",
-    select_music_track = function() 
-        return G.STAGE == G.STATES.SMODS_BOOSTER_OPENED and G.STATE and SMODS.OPENED_BOOSTER.label:find("booster_Futa")
-    end
-}
+-- SMODS.Sound{
+--     key = "music_sniper",
+--     path = "music_sniper.ogg",
+--     select_music_track = function() 
+--         return G.STAGE == G.STATES.SMODS_BOOSTER_OPENED and G.STATE and SMODS.OPENED_BOOSTER.label:find("booster_Futa")
+--     end
+-- }
 
 local jokerkey = {
     "j_feet_mirko_ice",
