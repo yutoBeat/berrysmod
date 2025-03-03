@@ -13,71 +13,35 @@ SMODS.Atlas {
 --     end
 -- }
 
-local jokerkey = {
-    "j_feet_mirko_ice", "j_feet_mirko_ice", "j_feet_mirko_ice",
-    "j_feet_pearl", "j_feet_pearl", "j_feet_pearl",
-    "Marina_Meat", "Marina_Meat", "Marina_Meat",
-    "Pearls_meal", "Pearls_meal", "Pearls_meal",
-    "j_feet_ghost", "j_feet_ghost", "j_feet_ghost",
-    "Doki", "Doki", "Doki",
-    "j_feet_dandandan", "j_feet_dandandan", "j_feet_dandandan",
-    "j_feet_pantyhose", "j_feet_pantyhose", "j_feet_pantyhose",
-    "j_feet_Tripple", "j_feet_Tripple", "j_feet_Tripple",
-    "j_feet_Cum", "j_feet_Cum", "j_feet_Cum",
-    "j_feet_Steamly", "j_feet_Steamly", "j_feet_Steamly",
-    "j_feet_Roboco", "j_feet_Roboco", "j_feet_Roboco",
-    "j_futa__IrYs", "j_futa__IrYs", "j_futa__IrYs",
-    "j_fuet_dokianal", "j_fuet_dokianal", "j_fuet_dokianal",
-    "j_futa_splatdance", "j_futa_splatdance", "j_futa_splatdance",
-    "j_feet_Lana", "j_feet_Lana", "j_feet_Lana",
-    "j_feet_Peko", "j_feet_Peko", "j_feet_Peko",
-    "j_feet_Twins", "j_feet_Twins", "j_feet_Twins",
-    "j_feet_selen", "j_feet_selen", "j_feet_selen",
-    "j_futa_mirko", "j_futa_mirko", "j_futa_mirko",
-    "j_feet_pantyhosefeet", "j_feet_pantyhosefeet", "j_feet_pantyhosefeet",
-    "j_feet_dp", "j_feet_dp", "j_feet_dp",
-    "j_feet_Fromuppper", "j_feet_Fromuppper", "j_feet_Fromuppper",
-    "j_feet_towa", "j_feet_towa", "j_feet_towa",
-    "j_futa_splat_orgy", "j_futa_splat_orgy", "j_futa_splat_orgy",
-    "j_feet_footlick", "j_feet_footlick", "j_feet_footlick",
-    "j_feet_frog smell", "j_feet_frog smell", "j_feet_frog smell",
-    "j_futa_gardivoir", "j_futa_gardivoir", "j_futa_gardivoir",
 
-    -- These appear only once to reduce frequency
-    "j_futa_tori",
-    "j_futa_chart",
-    "j_foot_collection",
-    "j_fuet_splatoon"
-}
-
+local futajokers = {}
 local function getrand_futajoker()
-    local futajokers = {}
-    for _, key in ipairs(jokerkey) do  -- Use correct variable name `jokerkey`
-        if string.match(key, "^j_futa") or string.match(key, "^j_fuet") then
-            table.insert(futajokers, key)
+    for k, v in pairs(G.P_CENTERS) do   -- Use correct variable name `jokerkey`
+        if (string.find(k, "j_futa") or string.find(k, "j_fuet")) and v.rarity ~= 4 then
+            table.insert(futajokers, k)
         end
     end
     if #futajokers > 0 then
         local randomIndex = math.random(1, #futajokers)
         local selectedKey = futajokers[randomIndex]
-        return "j_bery_" .. selectedKey
+        return selectedKey
     end
 end
 
+local footjokers = {}
 local function getrand_footjoker()
-    local footjokers = {}
-    for _, key in ipairs(jokerkey) do  -- Use correct variable name `jokerkey`
-        if string.match(key, "^j_feet") or string.match(key, "^j_fuet") then
-            table.insert(footjokers, key)
+    for k, v in pairs(G.P_CENTERS) do   -- Use correct variable name `jokerkey`
+        if (string.find(k, "j_feet") or string.find(k, "j_fuet")) and v.rarity ~= 4 then
+            table.insert(footjokers, k)
         end
     end
     if #footjokers > 0 then
         local randomIndex = math.random(1, #footjokers)
         local selectedKey = footjokers[randomIndex]
-        return "j_bery_" .. selectedKey
+        table.remove(footjokers, randomIndex)
+        return selectedKey
     end
 end
-
 
 SMODS.Booster {
     key = 'booster_Futa', 
@@ -131,7 +95,7 @@ SMODS.Booster {
     key = 'booster_Futa_Large', 
     atlas = 'booster',
     pos = {x = 2, y = 0},
-    weight = 10, 
+    weight = 2, 
     cost = 6, 
     config = {extra = 4, choose = 2},
     loc_txt = {
@@ -155,7 +119,7 @@ SMODS.Booster {
     key = 'booster_Foot_Large', 
     atlas = 'booster',
     pos = {x = 3, y = 0},
-    weight = 10, 
+    weight = 2, 
     cost = 6, 
     config = {extra = 5, choose = 2},
     loc_txt = {
@@ -173,4 +137,5 @@ SMODS.Booster {
         }
         return new_card
     end
+
 }

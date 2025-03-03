@@ -20,40 +20,48 @@ local function is_face(card)
 end
 
 
--- local joker_keys = {
---     "j_feet_mirko_ice",
---     "j_feet_pearl",
---     "Marina_Meat",
---     "Pearls_meal",
---     "j_feet_ghost",
---     "Doki",
---     "j_feet_dandandan",
---     "j_fuet_splatoon",
---     "j_feet_pantyhose",
---     "j_feet_Tripple",
---     "j_feet_Cum",
---     "j_feet_Steamly",
---     "j_feet_Roboco",
---     "j_futa__IrYs",
---     "dokianal",
---     "j_futa_chart",
---     "j_futa_splatdance",
---     "j_feet_Lana",
---     "j_feet_Peko",
---     "j_feet_Twins",
---     "j_feet_selen",
---     "j_futa_mirko",
---     "j_feet_pantyhosefeet",
---     "j_feet_dp",
---     "j_feet_Fromuppper",
---     "j_futa_tori",
---     "j_feet_towa",
---     "j_futa_splat_orgy",
---     "j_feet_footlick",
---     "j_feet_frog smell",
---     "j_futa_gardivoir",
---     "j_foot_collection"
--- }
+local joker_keys = {
+    "j_feet_mirko_ice",
+    "j_feet_pearl",
+    "Marina_Meat",
+    "Pearls_meal",
+    "j_feet_ghost",
+    "Doki",
+    "j_feet_dandandan",
+    "j_fuet_splatoon",
+    "j_feet_pantyhose",
+    "j_feet_Tripple",
+    "j_feet_Cum",
+    "j_feet_Steamly",
+    "j_feet_Roboco",
+    "j_futa__IrYs",
+    "j_fuet_dokianal",
+    "j_futa_chart",
+    "j_futa_splatdance",
+    "j_feet_Lana",
+    "j_feet_Peko",
+    "j_feet_Twins",
+    "j_feet_selen",
+    "j_futa_mirko",
+    "j_feet_pantyhosefeet",
+    "j_feet_dp",
+    "j_feet_Fromuppper",
+    "j_futa_tori",
+    "j_feet_towa",
+    "j_futa_splat_orgy",
+    "j_feet_footlick",
+    "j_feet_frog smell",
+    "j_futa_gardivoir",
+    "j_feet_collection"
+}
+
+local function is_futa(card)
+    if string.match(card.key, "j_futa") then
+        return true
+    else
+        return false
+    end
+end
 
 
 local feet_jokers = {}
@@ -83,6 +91,21 @@ local function get_futa_jokers()
     return futa_jokers
 end
 
+
+
+	-- local function getrand_footjoker()
+	-- 	for k, v in pairs(G.P_CENTERS) do   -- Use correct variable name `jokerkey`
+	-- 		if (string.find(k, "j_feet") or string.find(k, "j_fuet")) and v.rarity ~= 4 then
+	-- 			table.insert(footjokers, k)
+	-- 		end
+	-- 	end
+	-- 	if #footjokers > 0 then
+	-- 		local randomIndex = math.random(1, #footjokers)
+	-- 		local selectedKey = footjokers[randomIndex]
+	-- 		table.remove(footjokers, randomIndex)
+	-- 		return selectedKey
+	-- 	end
+	-- end
 
 SMODS.Joker {
 	key = 'j_feet_mirko_ice',
@@ -331,59 +354,61 @@ SMODS.Joker {
 
 
 SMODS.Joker {
-	
-	key = 'Doki',
-	
-	loc_txt = {
-		name = 'Cock shock',
-		text = {
-			
-			"Every Scoring King ",
-            "gives {X:mult,C:white}X#1#{} mult"
-		}
-	},
-	
-	config = { extra = { Xmult = 3,} },
-	
-	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.Xmult} }
-	end,
-	
-	rarity = 2,
-	
-	atlas = 'feetandfuta',
-	
-	pos = { x = 0, y = 1 },
-	
-	cost = 4,
-	
-	calculate = function(self, card, context)
-		local king
-		
-		if context.cardarea == G.play and context.repetition and not context.repetition_only then
-			if context.other_card:get_id() == 13 then
-				return {
-					Xmult_mod = card.ability.extra.Xmult,
-					message = "X3",
-					card = other_card
-				}
-				-- If all conditions are met, return the result
-				
-			else 
-				king = false
-			end
-			if king and context.joker_main and next(context.poker_hands['Straight']) and not context.blueprint then
-				return {
-					Xmult_mod = card.ability.extra.Xmult,
-					message = "X5",
-					card = card
-				}
-			end
+    key = 'Doki',
+    loc_txt = {
+        name = 'Cock shock',
+        text = {
+            "Give {C:mult}+#1#{} mult",
+            "A {C:PURPLE}Special{} Joker is Made, If the Card is",
+			"in your hand for more than 3 rounds",
+            "(Rounds met: {C:attention}#2#{}/{C:attention}3{})"
+        }
+    },
+    config = { extra = { mult = 3, count = 0 } },
+    loc_vars = function(self, info_queue, card)
+		return { vars = {card.ability.extra.mult, card.ability.extra.count} }
+    end,
+    rarity = 2,
+    atlas = 'feetandfuta',
+    pos = { x = 0, y = 1 },
+    cost = 4,
+
+    calculate = function(self, card, context)
+        if context.joker_main then
+            return {
+                mult = card.ability.extra.mult
+            }
+        end
+		if context.end_of_round and context.game_over == false and not context.repetition and not context.blueprint then
+			card.ability.extra.count = card.ability.extra.count + 1
+			return {
+				card.ability.extra.count,
+				message = ("+1 round"),
+				colour = G.C.ORANGE
+			}
 		end
-	end
-	
-	
-}   
+    end,
+
+    remove_from_deck = function(self, card, from_debuff)
+        G.E_MANAGER:add_event(Event({
+            func = function()
+				if card.ability.extra.count >= 5 then 
+                    local new_card = SMODS.create_card({
+                        set = 'Joker',
+                        key = "j_bery_j_fuet_dokianal",
+                        no_edition = true
+                    })
+                    if new_card then
+                        G.jokers:emplace(new_card)
+                        new_card:juice_up(0.4, 0.4)
+                    end
+                end
+                return true
+            end
+        }))
+    end
+}
+  
 
 SMODS.Joker {
 	
@@ -629,7 +654,7 @@ SMODS.Joker {
     slug = "j_feet",
 	calculate = function(self, card, context)
 		if context.before and next(context.poker_hands['Pair']) and not context.blueprint then
-			G.GAME.dollars = G.GAME.dollars + 6
+			ease_dollars(6)
 			return {
 				message = "+6",
 				colour = G.C.yellow
@@ -645,15 +670,14 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Motherly Nylon Soles',
 		text = {
-			
-			"if a full house is play X1.5"
+			"if a full house is play {X:mult,C:white}X#1#{} Mult"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { mult = 1.5 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.Xmult } }
 	end,
 	
 	rarity = 1,
@@ -667,14 +691,11 @@ SMODS.Joker {
 
 	
 	calculate = function(self, card, context)
-		
-		if context.joker_main then
-			
+		if context.joker_main and next(context.poker_hands['Full House']) and not context.blueprint then
 			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
+				message = "X2",
+				Xmult_mod = card.ability.extra.Xmult, 
+				card = card
 			}
 		end
 	end
@@ -688,14 +709,17 @@ SMODS.Joker {
 		name = 'Metal Grippers',
 		text = {
 			
-			"Playing exactly 4 cards gives +25 mult"
+			"If Played hand is 4",
+			"every scored cards gain,",
+			"{X:mult,C:white}+10{} Mult and delete those cards",
+			"{C:inactive}(Currently: +#1#){}"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { mult = 5, mult_gain = 5  } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.mult, card.ability.extra.mult_gain } }
 	end,
 	
 	rarity = 1,
@@ -710,13 +734,16 @@ SMODS.Joker {
 	
 	calculate = function(self, card, context)
 		
-		if context.joker_main then
-			
+		if context.cardarea == G.play and #G.play.cards == 4 and not context.repetition then
+			card.ability.extra.mult = card.ability.extra.mult + card.ability.extra.mult_gain
 			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
+				message = "Crushed!",
+				colour = G.C.RED
+			}
+		end
+		if context.joker_main then 
+			return {
+				mult = card.ability.extra.mult
 			}
 		end
 	end
@@ -730,14 +757,15 @@ SMODS.Joker {
 		name = 'Futa love',
 		text = {
 			
-			"If played hand contains 2 or more Queens, {}#1# Chips"
+			"If played hand contains 2",
+			"or more Queens, {X:chips,C:white}#1#{} Chips"
 		}
 	},
 	
 	config = { extra = { XChips = 2, queen_count = 0 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.Xchips, card.ability.extra.queen_count} }
+		return { vars = { card.ability.extra.XChips, card.ability.extra.queen_count} }
 	end,
 	
 	rarity = 1,
@@ -756,9 +784,8 @@ SMODS.Joker {
 			print(card.ability.extra.queen_count)
 		end
 		if context.joker_main and card.ability.extra.queen_count >= 2 then
-			print("Should work")
 			return {
-				xchips = card.ability.extra.Xchips
+				xchips = card.ability.extra.XChips
 			}
 		end
 		if context.end_of_round then
@@ -769,39 +796,38 @@ SMODS.Joker {
 
 SMODS.Joker {
 	
-	key = 'dokianal',
+	key = 'j_fuet_dokianal',
 	
 	loc_txt = {
 		name = 'Aftermath',
 		text = {
 			
-			"{C:mult}+#1# {} Mult"
+			"Gives {X:mult,C:white}X7{} mult"
 		}
 	},
 	
-	config = { extra = { mult = 100 } },
+	config = { extra = { Xmult = 7 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
+		return { vars = { card.ability.extra.Xmult } }
 	end,
 	
-	rarity = 1,
+	rarity = 4,
 	
 	atlas = 'feetandfuta',
 	
 	pos = { x = 4, y = 0 },
 	
-	cost = 2,
+	cost = 5,
 	
+	in_pool = function(self) 
+		return false 
+	end,
+
 	calculate = function(self, card, context)
-		
 		if context.joker_main then
-			
 			return {
-				mult_mod = card.ability.extra.mult,
-				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
-				
+				Xmult = card.ability.extra.Xmult
 			}
 		end
 	end
@@ -837,15 +863,13 @@ SMODS.Joker {
     slug = "j_futa",
 	
 	calculate = function(self, card, context)
-		-- if context.joker_main then
-		-- 	if other_jokers == "runner" then
-		-- 		return {
-		-- 			Xmult = card.ability.extra.Xmult,
-		-- 			message = "X1.5",
-		-- 			colour = G.C.Red
-		-- 		}
-		-- 	end
-		-- end
+		if context.other_joker then
+			if is_futa(context.other_joker) then
+				return {
+					Xmult = card.ability.extra.Xmult
+				}
+			end
+		end
 	end
 }
 
@@ -1078,89 +1102,89 @@ SMODS.Joker {
 	end
 }
 
-SMODS.Joker {
+-- SMODS.Joker {
 	
-	key = 'j_futa_mirko',
+-- 	key = 'j_futa_mirko',
 	
-	loc_txt = {
-		name = 'Surporting stirups',
-		text = {
+-- 	loc_txt = {
+-- 		name = 'Mirkos GIANT CO-',
+-- 		text = {
 			
-			"{C:mult}+#1# {} Mult"
-		}
-	},
+-- 			"{C:mult}+#1# {} Mult"
+-- 		}
+-- 	},
 	
-	config = { extra = { mult = 100 } },
+-- 	config = { extra = { mult = 100 } },
 	
-	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
-	end,
+-- 	loc_vars = function(self, info_queue, card)
+-- 		return { vars = { card.ability.extra.mult } }
+-- 	end,
 	
-	rarity = 1,
+-- 	rarity = 1,
 	
-	atlas = 'feetandfuta',
+-- 	atlas = 'feetandfuta',
 	
-	pos = { x = 4, y = 5 },
+-- 	pos = { x = 4, y = 5 },
 	
-	cost = 2,
+-- 	cost = 2,
 
-    slug = "j_futa",
+--     slug = "j_futa",
 	
-	calculate = function(self, card, context)
+-- 	calculate = function(self, card, context)
 		
-		if context.joker_main then
+-- 		if context.joker_main then
 			
-			return {
-				mult_mod = card.ability.extra.mult,
+-- 			return {
+-- 				mult_mod = card.ability.extra.mult,
 				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
+-- 				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
 				
-			}
-		end
-	end
-}
+-- 			}
+-- 		end
+-- 	end
+-- }
 
-SMODS.Joker {
+-- SMODS.Joker {
 	
-	key = 'j_feet_pantyhosefeet',
+-- 	key = 'j_feet_pantyhosefeet',
 	
-	loc_txt = {
-		name = 'A sole worker',
-		text = {
+-- 	loc_txt = {
+-- 		name = 'A sole worker',
+-- 		text = {
 			
-			"{C:mult}+#1# {} Mult"
-		}
-	},
+-- 			"{C:mult}+#1# {} Mult"
+-- 		}
+-- 	},
 	
-	config = { extra = { mult = 100 } },
+-- 	config = { extra = { mult = 100 } },
 	
-	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult } }
-	end,
+-- 	loc_vars = function(self, info_queue, card)
+-- 		return { vars = { card.ability.extra.mult } }
+-- 	end,
 	
-	rarity = 1,
+-- 	rarity = 1,
 	
-	atlas = 'feetandfuta',
+-- 	atlas = 'feetandfuta',
 	
-	pos = { x = 0, y = 6 },
+-- 	pos = { x = 0, y = 6 },
 	
-	cost = 2,
+-- 	cost = 2,
 
-    slug = "j_feet",
+--     slug = "j_feet",
 	
-	calculate = function(self, card, context)
+-- 	calculate = function(self, card, context)
 		
-		if context.joker_main then
+-- 		if context.joker_main then
 			
-			return {
-				mult_mod = card.ability.extra.mult,
+-- 			return {
+-- 				mult_mod = card.ability.extra.mult,
 				
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
+-- 				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.mult } }
 				
-			}
-		end
-	end
-}
+-- 			}
+-- 		end
+-- 	end
+-- }
 
 SMODS.Joker {
 	
@@ -1571,14 +1595,14 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Surrounded',
 		text = {
-            "Every foot joker gives 1.5 muilt"
+            "Every foot joker gives X1.5 muilt"
 		}
 	},
 	
-	config = { extra = { mult = 2, mult_gain = 2 } },
+	config = { extra = { xmult = 1.5,} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.mult, card.ability.extra.mult_gain } }
+		return { vars = { card.ability.extra.xmult,} }
 	end,
 	
 	rarity = 1,
@@ -1591,7 +1615,17 @@ SMODS.Joker {
     slug = "j_foot",
 	
 	calculate = function(self, card, context)
-
+		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					context.other_joker:juice_up(0.5, 0.5)
+					return true
+				end
+			})) 
+			return {
+				xmult = card.ability.extra.xmult
+			}
+		end
 	end
 }
 --------- voucher -----------
