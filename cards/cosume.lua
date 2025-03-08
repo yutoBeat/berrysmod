@@ -98,7 +98,7 @@ local jokers = {
 local function getrand_futajoker()
     local futajokers = {}
     for _, jokerkey in ipairs(jokers) do
-        if string.match(jokerkey, "^j_futa") or string.match(jokerkey, "^j_fuet") then
+        if string.match(jokerkey, "j_futa")then --  or string.match(jokerkey, "^j_fuet")
             table.insert(futajokers, jokerkey)
         end
     end
@@ -110,9 +110,9 @@ local function getrand_futajoker()
 end
 
 local function getrand_footjoker()
-local footjoker = {}
+    local footjoker = {}
     for _, jokerkey in ipairs(jokers) do
-        if string.match(jokerkey, "^j_foot") or string.match(jokerkey, "^j_fuet") then
+        if string.match(jokerkey, "j_feet") then --  or string.match(jokerkey, "^j_fuet")
             table.insert(footjoker, jokerkey)
         end
     end
@@ -146,19 +146,22 @@ SMODS.Consumable {
     pos = {x=0, y=0},
      
 
-    can_use = function(card)
-        return {
-            G.jokers.config.card_limit > #G.jokers.cards
-        }
-
+    can_use = function()        
+        if G.jokers.config.card_limit > #G.jokers.cards then
+            return {
+                true
+            }
+        else return{false } end
     end,
 
     use = function(card, area, copier)
-        local key_joker = getrand_footjoker()
-        SMODS.add_card{
-            set = 'Joker',
-            key = key_joker
-        }
+        if G.jokers.config.card_limit > #G.jokers.cards then
+            local key_joker = getrand_footjoker()
+            SMODS.add_card{
+                set = 'Joker',
+                key = key_joker
+            }
+        end
     end
 }
 
@@ -183,7 +186,7 @@ SMODS.Consumable {
     atlas = 'tarot_sheet',
     pos = {x=1, y=0},
 
-    can_use = function(card)
+    can_use = function()
         return {
             G.jokers.config.card_limit > #G.jokers.cards
         }
@@ -191,10 +194,13 @@ SMODS.Consumable {
     end,
 
     use = function(card, area, copier)
-        SMODS.add_card{
-            set = 'Joker',
-            key = getrand_futajoker()
-        }
+        if G.jokers.config.card_limit > #G.jokers.cards then
+            local key_joker = getrand_futajoker()
+            SMODS.add_card{
+                set = 'Joker',
+                key = key_joker
+            }
+        end
     end
 }
 

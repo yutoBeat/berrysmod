@@ -56,11 +56,15 @@ local joker_keys = {
 }
 
 local function is_futa(card)
-    if string.match(card.key, "j_futa") then
-        return true
-    else
-        return false
-    end
+	if card == nil then 
+		return false
+	else
+		if string.match(card, "j_futa") then
+			return true
+		else
+			return false
+		end
+	end
 end
 
 
@@ -381,31 +385,33 @@ SMODS.Joker {
         end
 		if context.end_of_round and context.game_over == false and not context.repetition and not context.blueprint then
 			card.ability.extra.count = card.ability.extra.count + 1
+			G.E_MANAGER:add_event(Event({
+				func = function()
+					if card.ability.extra.count == 3 then 
+						G.jokers:remove_card(card)
+						card:remove()
+						card = nil
+						local new_card = SMODS.create_card({
+							set = 'Joker',
+							key = "j_bery_j_fuet_dokianal",
+							no_edition = true
+						})
+						if new_card then
+							G.jokers:emplace(new_card)
+							new_card:juice_up(0.4, 0.4)
+						end
+					end
+					return true
+				end
+			}))
 			return {
 				card.ability.extra.count,
 				message = ("+1 round"),
 				colour = G.C.ORANGE
 			}
+		else
+			return {}
 		end
-    end,
-
-    remove_from_deck = function(self, card, from_debuff)
-        G.E_MANAGER:add_event(Event({
-            func = function()
-				if card.ability.extra.count >= 5 then 
-                    local new_card = SMODS.create_card({
-                        set = 'Joker',
-                        key = "j_bery_j_fuet_dokianal",
-                        no_edition = true
-                    })
-                    if new_card then
-                        G.jokers:emplace(new_card)
-                        new_card:juice_up(0.4, 0.4)
-                    end
-                end
-                return true
-            end
-        }))
     end
 }
   
@@ -833,45 +839,47 @@ SMODS.Joker {
 	end
 }
 
-SMODS.Joker {
+-- SMODS.Joker {
 	
-	key = 'j_futa_chart',
+-- 	key = 'j_futa_chart',
 	
-	loc_txt = {
-		name = 'Its a contest',
-		text = {
+-- 	loc_txt = {
+-- 		name = 'Its a contest',
+-- 		text = {
 			
-			"Every Futa Joker gives +X1.5"
-		}
-	},
+-- 			"Every Futa Joker gives +X1.5"
+-- 		}
+-- 	},
 	
-	config = { extra = { Xmult = 1.5 } },
+-- 	config = { extra = { Xmult = 1.5 } },
 	
-	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.Xmult } }
-	end,
+-- 	loc_vars = function(self, info_queue, card)
+-- 		return { vars = { card.ability.extra.Xmult } }
+-- 	end,
 	
-	rarity = 1,
+-- 	rarity = 1,
 	
-	atlas = 'feetandfuta',
+-- 	atlas = 'feetandfuta',
 	
-	pos = { x = 2, y = 4 },
+-- 	pos = { x = 2, y = 4 },
 	
-	cost = 2,
+-- 	cost = 2,
 
-    soul_pos = { x = 1, y = 4 },
-    slug = "j_futa",
+--     soul_pos = { x = 1, y = 4 },
+--     slug = "j_futa",
 	
-	calculate = function(self, card, context)
-		if context.other_joker then
-			if is_futa(context.other_joker) then
-				return {
-					Xmult = card.ability.extra.Xmult
-				}
-			end
-		end
-	end
-}
+-- 	calculate = function(self, card, context)
+-- 		if context.other_joker then
+-- 			for _, key in context.other_joker do
+-- 				if is_futa(context.other_joker[key].key) then
+-- 					return {
+-- 						Xmult = card.ability.extra.Xmult
+-- 					}
+-- 				end
+-- 			end
+-- 		end
+-- 	end
+-- }
 
 SMODS.Joker {
 	
@@ -1322,7 +1330,7 @@ SMODS.Joker {
 	
 	calculate = function(self, card, context)
 		if context.end_of_round and not context.repetition and context.game_over == false and not context.blueprint then    
-			if card.ability.extra.counter >= card.ability.extra.max_count - 1 then
+			if card.ability.extra.counter >= card.ability.extra.max_count then
 				G.E_MANAGER:add_event(Event({
 					func = function()
 						play_sound('tarot1')
@@ -1482,17 +1490,20 @@ SMODS.Joker {
     slug = "j_feet",
 	
 	calculate = function(self, card, context)
-		
+		if context.individual and context.cardarea == G.play and context.repetition and not context.repetition_only then
+			local count = 0
+			count = count + 1
+			if not context.other_card > 1 then
+				card.ability.extra.Xmult = card.ability.extra.Xmult - card.ability.extra.Xmult_loss
+				return {
+					message = "-0.25X"
+				}
+			end
+		end
 		if context.final_scoring_step and next(context.poker_hands['High Card']) and not context.blueprint then
 			return {
-				Xmult_mod = card.ability.extra.Xmult,
-				message = localize { type = 'variable', key = 'a_mult', vars = { card.ability.extra.Xmult } }
-				
+				Xmult = card.ability.extra.Xmult,
 			}
-		elseif context.final_scoring_step then
-			if not next(context.poker_hands['High Card']) then
-				card.ability.extra.Xmult = card.ability.extra.Xmult - card.ability.extra.Xmult_loss
-			end
 		end
 	end
 }
