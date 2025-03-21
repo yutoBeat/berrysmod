@@ -33,32 +33,32 @@ local function is_futa(card)
 end
 
 
-local feet_jokers = {}
-local futa_jokers = {}
+-- local feet_jokers = {}
+-- local futa_jokers = {}
 
-local function get_feet_jokers()
-    if next(feet_jokers) ~= nil then
-        return feet_jokers
-    end
+-- local function get_feet_jokers()
+--     if next(feet_jokers) ~= nil then
+--         return feet_jokers
+--     end
 
-    if string.find(k, "j_feet") and v.rarity ~= 4 then
-        table.insert(feet_jokers, k)
-    end
+--     if string.find(k, "j_feet") and v.rarity ~= 4 then
+--         table.insert(feet_jokers, k)
+--     end
 
-    return feet_jokers
-end
+--     return feet_jokers
+-- end
 
-local function get_futa_jokers()
-    if next(futa_jokers) ~= nil then
-        return futa_jokers
-    end
+-- local function get_futa_jokers()
+--     if next(futa_jokers) ~= nil then
+--         return futa_jokers
+--     end
 
-    if string.find(k, "j_futa") and v.rarity ~= 4 then
-        table.insert(futa_jokers, k)
-    end
+--     if string.find(k, "j_futa") and v.rarity ~= 4 then
+--         table.insert(futa_jokers, k)
+--     end
 
-    return futa_jokers
-end
+--     return futa_jokers
+-- end
 
 
 
@@ -640,18 +640,18 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Motherly Nylon Soles',
 		text = {
-			"If a {C:attention}Full House{}",
+			"If a {C:attention}Flush Five{}",
 			" is played {X:mult,C:white}X#1#{} Mult"
 		}
 	},
 	
-	config = { extra = { mult = 1.5 } },
+	config = { extra = { mult = 3 } },
 	
 	loc_vars = function(self, info_queue, card)
 		return { vars = { card.ability.extra.mult } }
 	end,
 	
-	rarity = 2,
+	rarity = 3,
 	
 	atlas = 'feetandfuta',
 	
@@ -662,10 +662,9 @@ SMODS.Joker {
 
 	
 	calculate = function(self, card, context)
-		if context.joker_main and next(context.poker_hands['Full House']) and not context.blueprint then
+		if context.joker_main and next(context.poker_hands['Flush Five']) and not context.blueprint then
 			return {
-				message = "X1.5",
-				Xmult_mod = card.ability.extra.mult, 
+				xmult = card.ability.extra.mult, 
 				card = card
 			}
 		end
@@ -1593,7 +1592,7 @@ SMODS.Joker {
     slug = "j_foot",
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
+		if context.other_joker and context.other_joker ~= self and {string.find(context.other_joker.config.center.key, "j_feet") or string.find(context.other_joker.config.center.key, "j_fuet")} then
 			G.E_MANAGER:add_event(Event({
 				func = function()
 					context.other_joker:juice_up(0.5, 0.5)
@@ -1614,13 +1613,13 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Trapped?',
 		text = {
-            "If the lowest {C:attention}Played{} card is a {C:attention}2, 3, {}or {C:attention}4{},",
-			"it gets an additional {C:mult}+#1#{} mult",
-			" for every {C:attention}Face{} card in the {C:attention}hand{}",
+            "If the lowest {C:attention}Played{} card is a",
+			"{C:attention}2, 3, {}or {C:attention}4{}, it gets an additional {C:mult}+#1#{}",
+			"mult for every {C:attention}Face{} card in the {C:attention}hand{}",
 		}
 	},
 	
-	config = { extra = { mult = 5, faceCardAmount = 0 } },
+	config = { extra = { mult = 9,} },
 	
 	loc_vars = function(self, info_queue, card)
 		return { vars = { card.ability.extra.mult} }
@@ -1634,27 +1633,32 @@ SMODS.Joker {
 	
 	cost = 5,
     slug = "j_foot",
+	faceCardAmount = 0,
+	vaild_hand = false,
 	
 	calculate = function(self, card, context)
-		-- if context.individual and context.cardarea == G.hand and not context.repetition then
-		-- 	if context.other_card:get_id() == 11 or context.other_card:get_id() == 12 or context.other_card:get_id() == 13 then
-		-- 		card.ability.extra.faceCardAmount = card.ability.extra.faceCardAmount + 1
-		-- 	end
-		-- end
-		-- if context.individual and context.cardarea == G.play and not context.repetition then
-		-- 	if context.other_card:get_id() == 4 or context.other_card:get_id() == 3 or context.other_card:get_id() == 2 then
-		-- 		local final_mult = card.ability.extra.mult * card.ability.extra.faceCardAmount
-		-- 		if final_mult ~= 0 then
-		-- 			return {
-		-- 				mult = final_mult,
-		-- 				card = context.other_card
-		-- 			}
-		-- 			card.ability.extra.faceCardAmount = 0
-		-- 		else
-		-- 			print("error")
-		-- 		end
-		-- 	end
-		-- end
+		local cards123 = {}
+		if context.individual and context.cardarea == G.hand and not context.repetition then
+			if context.other_card:is_face() then
+				self.faceCardAmount = self.faceCardAmount + 1
+			end
+		end
+		if context.individual and context.cardarea == G.play and not context.repetition then
+			if context.other_card:get_id() == 4 or context.other_card:get_id() == 3 or context.other_card:get_id() == 2 then
+				self.vaild_hand = true
+			end
+		end
+		if context.joker_main and not context.repetition then 
+			if self.faceCardAmount >= 0 and self.vaild_hand then
+				return {
+					mult = card.ability.extra.mult * self.faceCardAmount
+				}
+			end
+		end
+		if context.end_of_hand then 
+			self.faceCardAmount = 0
+			self.vaild_hand = false
+		end
 	end
 }
 
@@ -1855,38 +1859,32 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Facial',
 		text = {
-            "Every Hand there is a 1/2 chance",
-			"for a random played card to gain", 
-			"a foil Enhancement"
+            "{C:green}#2# in #3#{} chance for a random",
+			"Played card to gain a {C:attention}Foil{}", 
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { mult = 15, odds = 2 } },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.mult, (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
 	end,
 	
-	rarity = 2,
+	rarity = 3,
 	
 	atlas = 'feetandfuta',
 	
 	pos = { x = 1, y = 9 },
 	
-	cost = 5,
+	cost = 7,
     slug = "j_foot",
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
-			G.E_MANAGER:add_event(Event({
-				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
-					return true
-				end
-			})) 
-			return {
-				xmult = card.ability.extra.xmult
-			}
+		if context.post_joker and not context.repetition and not context.blueprint then
+			if pseudorandom('Facial') < G.GAME.probabilities.normal / card.ability.extra.odds then
+				local foilcard = pseudorandom_element(G.play.cards, pseudoseed('Facialcard'))
+				foilcard.set_edition(foilcard, 'e_foil')
+			end
 		end
 	end
 }
@@ -1897,14 +1895,16 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Spread',
 		text = {
-            "Every {C:attention}Foot{} Joker gives {X:mult,C:white}X1.5{} Mult"
+            "For every {C:attention}Different{} card in",
+			"hand, score {C:mult}+#1#{} mult for",
+			"each card"
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { mult = 10,} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.mult,} }
 	end,
 	
 	rarity = 2,
@@ -1914,58 +1914,70 @@ SMODS.Joker {
 	pos = { x = 2, y = 9 },
 	
 	cost = 5,
-    slug = "j_foot",
+    slug = "j_futa",
+	count = 0,
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
-			G.E_MANAGER:add_event(Event({
-				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
-					return true
+		local cards123 = {}
+		if context.cardarea == G.play and not context.blueprint and not context.repetition then
+			for k, v in ipairs(G.play.cards) do
+				table.insert(cards123, {v:get_id()})
+			end
+			local seen = {}
+			local queenscount = 0
+			for _, v in ipairs(cards123) do
+				local key = v[1]
+				
+				if seen[key] == nil then
+					seen[key] = true
 				end
-			})) 
-			return {
-				xmult = card.ability.extra.xmult
-			}
+			end
+			local count = 0
+			for _ in pairs(seen) do 
+				count = count + 1 
+			end
+			self.count = count
+		end
+		if context.joker_main then 
+			if count ~= 0 then
+				return {
+					mult = card.ability.extra.mult*self.count
+				}
+			end
 		end
 	end
 }
 SMODS.Joker {
 	
-	key = 'j_futa__taker',
+	key = 'j_futa_ladder',
 	
 	loc_txt = {
-		name = 'Taker POV',
+		name = 'Futas ladder',
 		text = {
-            "Every {C:attention}Foot{} Joker gives {X:mult,C:white}X1.5{} Mult"
+            "If Played hand is a",
+			"{C:attention}Straight{} score {C:chips}+#1#{} chips"
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { chips = 100,} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.chips,} }
 	end,
 	
-	rarity = 2,
+	rarity = 1,
 	
 	atlas = 'feetandfuta',
 	
-	pos = { x = 3, y = 9 },
+	pos = { x = 0,y = 11 },
 	
 	cost = 5,
-    slug = "j_foot",
+    slug = "j_futa",
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
-			G.E_MANAGER:add_event(Event({
-				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
-					return true
-				end
-			})) 
+		if context.joker_main and next(context.poker_hands['Straight']) then
 			return {
-				xmult = card.ability.extra.xmult
+				chips = card.ability.extra.chips
 			}
 		end
 	end
@@ -2016,7 +2028,7 @@ SMODS.Joker {
 		name = 'Deep',
 		text = {
             "Every {C:mult}discard{} gains {X:mult,C:white}X#2#{} mult, But",
-			"every {C:mult}discarded{} card {C:attention}-1 Hand size{}",
+			"Does {C:mult}NOT{} draw after {C:mult}discard{}",
 			"{C:mult}resets{} every {C:attention}hand{}",
 			"{C:inactive}(currently: {X:mult,C:white}X#1#{C:inactive})"
 		}
@@ -2038,13 +2050,15 @@ SMODS.Joker {
     slug = "j_futa",
 	
 	calculate = function(self, card, context)
-		if context.pre_discard then 
-			card.ability.extra.current_loss = card.ability.extra.current_loss + #G.hand.highlighted
-			G.hand:change_size(-#G.hand.highlighted)
-			card.ability.extra.xmult = card.ability.extra.xmult + (card.ability.extra.xmult_gain*#G.hand.highlighted)
-			return {
-				message = "Upgraded"
-			}
+		if context.pre_discard then
+			if G.hand.size ~= 1 then 
+				card.ability.extra.current_loss = card.ability.extra.current_loss + #G.hand.highlighted
+				G.hand:change_size(-#G.hand.highlighted)
+				card.ability.extra.xmult = card.ability.extra.xmult + (card.ability.extra.xmult_gain*#G.hand.highlighted)
+				return {
+					message = "Upgraded"
+				}
+			end
 		end
 		if context.after and not context.repetition then
 			if card.ability.extra.current_loss ~= 0 then 
@@ -2063,6 +2077,7 @@ SMODS.Joker {
 		end
 	end
 }
+
 SMODS.Joker {
 	
 	key = 'j_futa_demon',
@@ -2070,14 +2085,15 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Demonic Judgement',
 		text = {
-            "Every {C:attention}Foot{} Joker gives {X:mult,C:white}X1.5{} Mult"
+            "{X:mult,C:white}X#1#{} mult but {C:green}#2# in #3#{} chance",
+			"of destoring all other jokers"
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { xmult = 6.66, odds = 10} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.xmult, (G.GAME.probabilities.normal or 1), card.ability.extra.odds } }
 	end,
 	
 	rarity = 2,
@@ -2088,21 +2104,49 @@ SMODS.Joker {
 	
 	cost = 5,
     slug = "j_foot",
+	safe = true,
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
+		if context.before and not context.repetition and not context.blueprint then
+			if pseudorandom('demon') < G.GAME.probabilities.normal / card.ability.extra.odds then
+				self.safe = false
+			else
+				self.safe = true
+			end
+		end
+		if context.other_joker and context.other_joker ~= card and not self.safe then
 			G.E_MANAGER:add_event(Event({
 				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
+					play_sound('tarot1')
+					context.other_joker.T.r = -0.2
+					context.other_joker:juice_up(0.3, 0.4)
+					context.other_joker.states.drag.is = true
+					context.other_joker.children.center.pinch.x = true
+					-- This part destroys the card.
+					G.E_MANAGER:add_event(Event({
+						trigger = 'after',
+						delay = 0.3,
+						blockable = false,
+						func = function()
+							G.jokers:remove_card(context.other_joker)
+							context.other_joker:remove()
+							context.other_joker = nil
+							return true;
+						end
+					}))
 					return true
 				end
-			})) 
-			return {
-				xmult = card.ability.extra.xmult
-			}
+			}))
+		elseif context.joker_main and not context.repetition then 
+			if self.safe then 
+				return {
+					xmult = card.ability.extra.xmult
+				}
+			end
 		end
 	end
 }
+
 SMODS.Joker {
 	
 	key = 'j_futa_holoen',
@@ -2212,16 +2256,17 @@ SMODS.Joker {
 	key = 'j_fuet_tsunade',
 	
 	loc_txt = {
-		name = "Shinobi's Tool Belt",
+		name = "Shinobi's Pleasure",
 		text = {
-            "Every {C:attention}Foot{} Joker gives {X:mult,C:white}X1.5{} Mult"
+            "If Played Hand contains a {C:attention}Queen{}",
+			"and a {C:attention}Straight{} then score {X:chips,C:white}X3{} chips",
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { xchips = 3,} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.xchips,} }
 	end,
 	
 	rarity = 2,
@@ -2231,18 +2276,27 @@ SMODS.Joker {
 	pos = { x = 4, y = 10 },
 	
 	cost = 5,
-    slug = "j_foot",
+    slug = "j_fuet",
+	vaildhand = false,
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
-			G.E_MANAGER:add_event(Event({
-				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
-					return true
+		if context.cardarea == G.play and not context.blueprint and not context.repetition then
+			local cards123 = {}
+			local queenfound = false
+			for k, v in ipairs(G.play.cards) do
+				if v:get_id() == 12 then
+					queenfound = true
 				end
-			})) 
+			end
+			if queenfound and next(context.poker_hands['Straight']) then 
+				self.vaildhand = true
+			else 
+				self.vaildhand = false
+			end
+		end
+		if context.joker_main and not context.repetition and self.vaildhand then
 			return {
-				xmult = card.ability.extra.xmult
+				xchips = card.ability.extra.xchips
 			}
 		end
 	end
@@ -2254,36 +2308,49 @@ SMODS.Joker {
 	loc_txt = {
 		name = 'Soaked',
 		text = {
-            "Every {C:attention}Foot{} Joker gives {X:mult,C:white}X1.5{} Mult"
+            "For Every {C:attention}Foil{} card in",
+			"the deck score {C:mult}+#1#{}"
 		}
 	},
 	
-	config = { extra = { xmult = 1.5,} },
+	config = { extra = { mult = 5,} },
 	
 	loc_vars = function(self, info_queue, card)
-		return { vars = { card.ability.extra.xmult,} }
+		return { vars = { card.ability.extra.mult,} }
 	end,
 	
-	rarity = 2,
+	rarity = 1,
 	
 	atlas = 'feetandfuta',
 	
-	pos = { x = 0,y = 11 },
+	pos = { x = 3, y = 9 },
 	
-	cost = 5,
+	cost = 3,
     slug = "j_foot",
+	foil_count = 0,
 	
 	calculate = function(self, card, context)
-		if context.other_joker and string.find(context.other_joker.config.center.key, "j_feet") and context.other_joker ~= self then
-			G.E_MANAGER:add_event(Event({
-				func = function()
-					context.other_joker:juice_up(0.5, 0.5)
-					return true
+		if context.cardarea == G.play then
+			local count = 0
+			local deck = {}
+			if self.foil_count == 0 then
+				for k,v in ipairs(G.deck.cards) do
+					if v.edition ~= nil then
+						count = count + 1
+					end
 				end
-			})) 
-			return {
-				xmult = card.ability.extra.xmult
-			}
+				self.foil_count = count
+			end
+		end
+		if context.joker_main and not context.repetition then 
+			if self.foil_count ~= nil then 
+				if self.foil_count >= 0 then 
+					local final_mult = card.ability.extra.mult * self.foil_count
+					return {
+						mult = final_mult
+					}
+				end
+			end
 		end
 	end
 }
